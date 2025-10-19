@@ -88,15 +88,15 @@
               {{-- <h4 class="mb-2">Adventure starts here 🚀</h4>
               <p class="mb-4">Make your app management easy and fun!</p> --}}
               @if (session('success'))
-                <div class="alert alert-success">
+<div class="alert alert-success">
                     {{ session('success') }}
                 </div>
-                @endif
+@endif
                 @if (session('error'))
-                <div class="alert alert-danger">
+<div class="alert alert-danger">
                     {{ session('error') }}
                 </div>
-                @endif
+@endif
 
               <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('editPassword') }}">
                   @csrf
@@ -130,8 +130,8 @@
                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                   </div>
                   @error('password')
-                    <span class="text-danger">{{ $message }}</span>
-                  @enderror
+    <span class="text-danger">{{ $message }}</span>
+@enderror
                 </div>
 
                 <div class="mb-3 form-password-toggle">
@@ -154,7 +154,7 @@
 
               <p class="text-center">
                 
-                <a href="{{ route('listBerkas') }}">
+                <a href="{{ route('kasir') }}">
                   <span>Kembali</span>
                 </a>
                 

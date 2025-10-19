@@ -32,7 +32,7 @@ class AuthController extends Controller
                 'role_id' => $user->role_id,
             ]);
 
-            return redirect(RouteServiceProvider::HOME);
+            return redirect(route('kasir'));
         }
 
         // $user = User::where('username', $request->username)->first();

@@ -75,7 +75,6 @@ class UserController extends Controller
             'username' => request('username'),
             'password' => bcrypt(request('password')),
             'role_id' => request('role_id'),
-            'aktif' => 1
         ]);
 
 
