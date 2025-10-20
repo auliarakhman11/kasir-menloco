@@ -53,6 +53,11 @@ Route::middleware('auth')->group(function () {
     Route::post('refundInvoice', [KasirController::class, 'refundInvoice'])->name('refundInvoice');
     //end kasir
 
+    //laporan
+    Route::get('laporanPenjualan', [LaporanController::class, 'laporanPenjualan'])->name('laporanPenjualan');
+    Route::get('detailLaporanPenjualan/{tgl}', [LaporanController::class, 'detailLaporanPenjualan'])->name('detailLaporanPenjualan');
+    //laporan
+
 
     Route::middleware('hakakses:1')->group(function () {
         Route::get('user', [UserController::class, 'index'])->name('user');

@@ -51,7 +51,7 @@
             </ul>
         </li>
 
-        <li class="menu-item {{ Request::is(['kasir']) ? 'active open' : '' }}">
+        <li class="menu-item {{ Request::is(['kasir', 'laporanPenjualan']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class='menu-icon tf-icons bx bx-store'></i>
                 <div data-i18n="Penjualan">Penjualan</div>
@@ -61,6 +61,12 @@
                 <li class="menu-item {{ Request::is('kasir') ? 'active' : '' }}">
                     <a href="{{ route('kasir') }}" class="menu-link">
                         <div data-i18n="Kasir">Kasir</div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ Request::is('laporanPenjualan') ? 'active' : '' }}">
+                    <a href="{{ route('laporanPenjualan') }}" class="menu-link">
+                        <div data-i18n="Laporan Penjualan">Laporan Penjualan</div>
                     </a>
                 </li>
 
