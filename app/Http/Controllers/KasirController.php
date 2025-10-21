@@ -58,7 +58,7 @@ class KasirController extends Controller
     public function getAntrian()
     {
         return view('kasir.getAntrian', [
-            'antrian' => Invoice::where('selesai', 0)->where('void', 0)->orderBy('id', 'ASC')->get(),
+            'antrian' => Invoice::where('selesai', 0)->where('void', 0)->where('tgl',date('Y-m-d'))->orderBy('id', 'ASC')->get(),
         ])->render();
     }
 

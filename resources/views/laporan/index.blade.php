@@ -89,6 +89,52 @@
 
                 </div>
 
+                <div class="card mt-2">
+                    <div class="card-header">
+                        <form action="" method="get">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="float-start">Laporan Per Service</h5>
+                                </div>
+                                
+                            </div>
+                        </form>
+
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+                            <table class="table table-sm text-center" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Service</th>
+                                        <th>Jumlah Service</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $i = 1;
+                                    @endphp
+                                    @foreach ($perlayanan as $d)
+                                        <tr>
+                                            <td>{{ $i++ }}</td>
+                                            <td>{{ $d->service->nm_service }}</td>
+                                            <td>{{ $d->jml_service }}</td>
+                                            <td>{{ number_format($d->ttl_penjualan, 0) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                </div>
+
                 {{-- <div class="card mt-3">
           <div class="card-header">
               <h5 class="float-start">Kirim Berkas</h5>

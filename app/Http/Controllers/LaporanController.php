@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
+use App\Models\Penjualan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,6 +24,7 @@ class LaporanController extends Controller
             'tgl1' => $tgl1,
             'tgl2' => $tgl2,
             'laporan' => Invoice::select('tgl')->selectRaw('SUM(total) as ttl_penjualan, COUNT(id) as jml_pelanggan')->where('tgl', '>=', $tgl1)->where('tgl', '<=', $tgl2)->where('void', 0)->where('selesai', 1)->groupBy('tgl')->orderBy('tgl', 'DESC')->get(),
+            'perlayanan' => Penjualan::select('penjualan.*')->selectRaw('SUM(qty * harga) as ttl_penjualan, SUM(qty) as jml_service')->where('tgl', '>=', $tgl1)->where('tgl', '<=', $tgl2)->where('void', 0)->groupBy('service_id')->orderBy('service_id','ASC')->with(['service'])->get(),
         ]);
     }
 
