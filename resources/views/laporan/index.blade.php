@@ -65,13 +65,17 @@
                                 <tbody>
                                     @php
                                         $i = 1;
+                                        $total = 0;
                                     @endphp
                                     @foreach ($laporan as $d)
+                                        @php
+                                            $total += $d->ttl_penjualan - $d->ttl_diskon;
+                                        @endphp
                                         <tr>
                                             <td>{{ $i++ }}</td>
                                             <td>{{ date('d/m/Y', strtotime($d->tgl)) }}</td>
                                             <td>{{ $d->jml_pelanggan }}</td>
-                                            <td>{{ number_format($d->ttl_penjualan, 0) }}</td>
+                                            <td>{{ number_format($d->ttl_penjualan - $d->ttl_diskon, 0) }}</td>
                                             <td>
                                                 <button type="button"
                                                     class="btn btn-sm btn-primary detail_laporan_penjualan"
@@ -82,6 +86,13 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3"><b>Total</b></td>
+                                        <td><b>{{ number_format($total, 0) }}</b></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
 
@@ -91,14 +102,14 @@
 
                 <div class="card mt-2">
                     <div class="card-header">
-                        <form action="" method="get">
-                            <div class="row">
-                                <div class="col-12">
-                                    <h5 class="float-start">Laporan Per Service</h5>
-                                </div>
-                                
+
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="float-start">Laporan Per Service</h5>
                             </div>
-                        </form>
+
+                        </div>
+
 
 
                     </div>
@@ -118,8 +129,12 @@
                                 <tbody>
                                     @php
                                         $i = 1;
+                                        $total = 0;
                                     @endphp
                                     @foreach ($perlayanan as $d)
+                                        @php
+                                            $total += $d->ttl_penjualan;
+                                        @endphp
                                         <tr>
                                             <td>{{ $i++ }}</td>
                                             <td>{{ $d->service->nm_service }}</td>
@@ -128,6 +143,59 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="card mt-2">
+                    <div class="card-header">
+
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="float-start">Laporan Pembagian</h5>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+                            <table class="table table-sm text-center" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Karyawan</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        $i = 1;
+                                        $total = 0;
+                                    @endphp
+                                    @foreach ($pembagian as $d)
+                                        @php
+                                            $total += $d->ttl_pembagian;
+                                        @endphp
+                                        <tr>
+                                            <td>{{ $i++ }}</td>
+                                            <td>{{ $d->karyawan->nama }}</td>
+                                            <td>{{ number_format($d->ttl_pembagian, 0) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2"><b>Total</b></td>
+                                        <td><b>{{ number_format($total, 0) }}</b></td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
 

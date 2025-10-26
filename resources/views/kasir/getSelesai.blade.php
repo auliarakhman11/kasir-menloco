@@ -6,6 +6,7 @@
                 <th>Waktu Selesai</th>
                 <th>Invoice</th>
                 <th>Customer</th>
+                <th>No WA</th>
                 <th>Total</th>
                 <th>Aksi</th>
             </tr>
@@ -17,7 +18,8 @@
                     <td>{{ date('d/m/Y H:i', strtotime($d->updated_at)) }}</td>
                     <td>{{ $d->no_invoice }}</td>
                     <td>{{ $d->nm_customer }}</td>
-                    <td>{{ number_format($d->total, 0) }}</td>
+                    <td>{{ $d->no_tlp }}</td>
+                    <td>{{ number_format($d->total - $d->diskon, 0) }}</td>
                     <td>
                         <a href="{{ route('printNota', ['inv' => $d->id]) }}" class="btn btn-sm btn-primary"><i
                                 class='bx bx-printer'></i></a>

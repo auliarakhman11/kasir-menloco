@@ -19,9 +19,9 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="float-start">Data Karyawan</h5>
+                        <h5 class="float-start">Data Diskon</h5>
                         <button type="button" class="btn btn-sm btn-primary float-end" data-bs-toggle="modal"
-                            data-bs-target="#modal_add_karyawan"><i class='bx bxs-plus-circle'></i> Tambah Data</button>
+                            data-bs-target="#modal_add_diskon"><i class='bx bxs-plus-circle'></i> Tambah Data</button>
                     </div>
 
                     <div class="card-body">
@@ -31,10 +31,9 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Karyawan</th>
-                                        <th>No Telepon</th>
-                                        <th>Alamat</th>
-                                        <th>Tanggal Masuk</th>
+                                        <th>Nama Diskon</th>
+                                        <th>Jumlah</th>
+                                        <th>Status</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -42,20 +41,29 @@
                                     @php
                                         $i = 1;
                                     @endphp
-                                    @foreach ($karyawan as $d)
+                                    @foreach ($diskon as $d)
                                         <tr>
                                             <td>{{ $i++ }}</td>
-                                            <td>{{ $d->nama }}</td>
-                                            <td>{{ $d->no_tlp }}</td>
-                                            <td>{{ $d->alamat }}</td>
-                                            <td>{{ $d->tgl_masuk ? date('d/m/Y', strtotime($d->tgl_masuk)) : '' }}</td>
+                                            <td>{{ $d->nm_diskon }}</td>
+                                            <td>
+                                                @if ($d->jumlah > 100)
+                                                    {{ number_format($d->jumlah, 0) }}
+                                                @else
+                                                    {{ $d->jumlah }}%
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($d->void)
+                                                    Tidak Aktif
+                                                @else
+                                                    Aktif
+                                                @endif
+                                            </td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                                    data-bs-target="#modal_edit_karyawan{{ $d->id }}"><i
+                                                    data-bs-target="#modal_edit_diskon{{ $d->id }}"><i
                                                         class='bx bxs-message-square-edit'></i></button>
-                                                <a href="{{ route('deleteKaryawan', $d->id) }}"
-                                                    onclick="return confirm('Apakah anda yakin?');"
-                                                    class="btn btn-sm btn-primary"><i class='bx bxs-trash'></i></a>
+
                                             </td>
                                         </tr>
                                     @endforeach
@@ -96,14 +104,14 @@
 
     <!-- Modal -->
 
-    <form id="form_add_karyawan" method="POST" action="{{ route('addKaryawan') }}">
+    <form id="form_add_diskon" method="POST" action="{{ route('addDiskon') }}">
         @csrf
-        <div class="modal fade" id="modal_add_karyawan" tabindex="-1" aria-labelledby="modal_add_karyawanLabel"
+        <div class="modal fade" id="modal_add_diskon" tabindex="-1" aria-labelledby="modal_add_diskonLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered ">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modal_add_karyawanLabel">Tambah Karyawan</h5>
+                        <h5 class="modal-title" id="modal_add_diskonLabel">Tambah Diskon</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -111,36 +119,15 @@
 
                             <div class="col-12 mb-2">
                                 <div class="form-group">
-                                    <label for="">Nama Karyawan</label>
-                                    <input type="text" name="nama" class="form-control" required>
+                                    <label for="">Nama Diskon</label>
+                                    <input type="text" name="nm_diskon" class="form-control" required>
                                 </div>
                             </div>
 
                             <div class="col-12 mb-2">
                                 <div class="form-group">
-                                    <label for="">Nomor Telepon</label>
-                                    <input type="number" name="no_tlp" class="form-control">
-                                </div>
-                            </div>
-
-                            <div class="col-12 mb-2">
-                                <div class="form-group">
-                                    <label for="">Alamat</label>
-                                    <textarea class="form-control" name="alamat" cols="30" rows="10"></textarea>
-                                </div>
-                            </div>
-
-                            <div class="col-12 mb-2">
-                                <div class="form-group">
-                                    <label for="">Tanggal Masuk</label>
-                                    <input type="date" name="tgl_masuk" class="form-control">
-                                </div>
-                            </div>
-
-                            <div class="col-12 mb-2">
-                                <div class="form-group">
-                                    <label for="">Pembagian Hasil</label>
-                                    <input type="text" name="pembagian" class="form-control" value="0" required>
+                                    <label for="">Jumlah Diskon</label>
+                                    <input type="text" name="jumlah" class="form-control" required>
                                 </div>
                             </div>
 
@@ -149,23 +136,23 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" id="btn_add_karyawan">Save</button>
+                        <button type="submit" class="btn btn-primary" id="btn_add_diskon">Save</button>
                     </div>
                 </div>
             </div>
         </div>
     </form>
 
-    @foreach ($karyawan as $d)
-        <form method="POST" action="{{ route('editKaryawan') }}">
+    @foreach ($diskon as $d)
+        <form method="POST" action="{{ route('editDiskon') }}">
             @csrf
             @method('patch')
-            <div class="modal fade" id="modal_edit_karyawan{{ $d->id }}" tabindex="-1"
-                aria-labelledby="modal_edit_karyawanLabel" aria-hidden="true">
+            <div class="modal fade" id="modal_edit_diskon{{ $d->id }}" tabindex="-1"
+                aria-labelledby="modal_edit_diskonLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered ">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modal_edit_karyawanLabel">Tambah Karyawan</h5>
+                            <h5 class="modal-title" id="modal_edit_diskonLabel">Tambah Diskon</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -175,40 +162,28 @@
 
                                 <div class="col-12 mb-2">
                                     <div class="form-group">
-                                        <label for="">Nama Karyawan</label>
-                                        <input type="text" name="nama" class="form-control"
-                                            value="{{ $d->nama }}" required>
+                                        <label for="">Nama Diskon</label>
+                                        <input type="text" name="nm_diskon" class="form-control"
+                                            value="{{ $d->nm_diskon }}" required>
                                     </div>
                                 </div>
 
                                 <div class="col-12 mb-2">
                                     <div class="form-group">
-                                        <label for="">Nomor Telepon</label>
-                                        <input type="number" name="no_tlp" class="form-control"
-                                            value="{{ $d->no_tlp }}">
+                                        <label for="">Jumlah Diskon</label>
+                                        <input type="text" name="jumlah" class="form-control"
+                                            value="{{ $d->jumlah }}" required>
                                     </div>
                                 </div>
 
                                 <div class="col-12 mb-2">
                                     <div class="form-group">
-                                        <label for="">Alamat</label>
-                                        <textarea class="form-control" name="alamat" cols="30" rows="10">{{ $d->alamat }}</textarea>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 mb-2">
-                                    <div class="form-group">
-                                        <label for="">Tanggal Masuk</label>
-                                        <input type="date" name="tgl_masuk" class="form-control"
-                                            value="{{ $d->tgl_masuk }}">
-                                    </div>
-                                </div>
-
-                                <div class="col-12 mb-2">
-                                    <div class="form-group">
-                                        <label for="">Pembagian Hasil</label>
-                                        <input type="text" name="pembagian" class="form-control"
-                                            value="{{ $d->pembagian }}" required>
+                                        <label for="">Aktif</label>
+                                        <select name="void" class="form-control">
+                                            <option value="0" {{ $d->void == 0 ? 'selected' : '' }}>Aktif</option>
+                                            <option value="1" {{ $d->void == 1 ? 'selected' : '' }}>Tidak Akatif
+                                            </option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -274,9 +249,9 @@
             <?php endif; ?>
 
 
-            $(document).on('submit', '#form_add_karyawan', function(event) {
-                $('#btn_add_karyawan').attr('disabled', true);
-                $('#btn_add_karyawan').html('Loading...');
+            $(document).on('submit', '#form_add_diskon', function(event) {
+                $('#btn_add_diskon').attr('disabled', true);
+                $('#btn_add_diskon').html('Loading...');
 
             });
 

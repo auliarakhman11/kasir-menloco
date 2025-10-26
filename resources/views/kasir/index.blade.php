@@ -359,7 +359,7 @@
                             <input type="hidden" id="invoice_id_refund" name="id">
                             <div class="col-12">
                                 <label for="">Alasan Refund</label>
-                                <input type="text" class="form-control" required>
+                                <input type="text" name="ket_refund" class="form-control" required>
                             </div>
                         </div>
                     </div>
@@ -584,7 +584,10 @@
                     grand_total += parseInt($(this).val()); // Example: add a class to each element
                 });
 
-                $('#grand_total').html(grand_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                var diskon = parseInt($('#jml_diskon').val());
+                var tot = grand_total - diskon;
+
+                $('#grand_total').html(tot.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
             });
 
             $(document).on('change', '.hitung_select', function() {
@@ -616,7 +619,10 @@
                     grand_total += parseInt($(this).val()); // Example: add a class to each element
                 });
 
-                $('#grand_total').html(grand_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                var diskon = parseInt($('#jml_diskon').val());
+                var tot = grand_total - diskon;
+
+                $('#grand_total').html(tot.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 
             });
 
@@ -652,7 +658,10 @@
                     grand_total += parseInt($(this).val()); // Example: add a class to each element
                 });
 
-                $('#grand_total').html(grand_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                var diskon = parseInt($('#jml_diskon').val());
+                var tot = grand_total - diskon;
+
+                $('#grand_total').html(tot.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 
             });
 
@@ -788,6 +797,35 @@
                             'Save'); //tombol
                     }
                 });
+
+            });
+
+            $(document).on('change', '#pilih_diskon', function() {
+
+                var dt_diskon = $(this).val();
+
+                var diskon = dt_diskon != "" ? parseInt(dt_diskon) : 0;
+
+                let grand_total = 0;
+                $(".total_hide").each(function(index, element) {
+                    grand_total += parseInt($(this).val()); // Example: add a class to each element
+                });
+
+                if (diskon != 0 && diskon <= 100) {
+                    var jml_diskon = grand_total > 0 ? grand_total * diskon / 100 : 0;
+
+                } else if (diskon != 0 && diskon > 100) {
+                    var jml_diskon = diskon;
+                } else {
+                    var jml_diskon = 0;
+                }
+
+                $("#nominal_diskon").html(jml_diskon.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $('#jml_diskon').val(jml_diskon);
+
+                var tot = grand_total - jml_diskon;
+
+                $('#grand_total').html(tot.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 
             });
 

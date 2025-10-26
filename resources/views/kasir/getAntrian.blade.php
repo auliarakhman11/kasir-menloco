@@ -6,6 +6,7 @@
                 <th>Waktu</th>
                 <th>Invoice</th>
                 <th>Customer</th>
+                <th>No WA</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -16,6 +17,7 @@
                     <td>{{ date('d/m/Y H:i', strtotime($d->created_at)) }}</td>
                     <td>{{ $d->no_invoice }}</td>
                     <td>{{ $d->nm_customer }}</td>
+                    <td>{{ $d->no_tlp }}</td>
                     <td><button class="btn btn-sm btn-primary mt-2 add_pesanan" type="button" data-bs-toggle="modal"
                             data-bs-target="#modal_add_pesanan" invoice_id="{{ $d->id }}"><i
                                 class='bx bxs-cart'></i></button> <button

@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BerkasController;
+use App\Http\Controllers\DiskonController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KasirController;
@@ -56,6 +57,10 @@ Route::middleware('auth')->group(function () {
     //laporan
     Route::get('laporanPenjualan', [LaporanController::class, 'laporanPenjualan'])->name('laporanPenjualan');
     Route::get('detailLaporanPenjualan/{tgl}', [LaporanController::class, 'detailLaporanPenjualan'])->name('detailLaporanPenjualan');
+
+    Route::get('laporanRefund', [LaporanController::class, 'laporanRefund'])->name('laporanRefund');
+    Route::get('TerimaRefund/{id}', [LaporanController::class, 'TerimaRefund'])->name('TerimaRefund');
+    Route::get('tolakRefund/{id}', [LaporanController::class, 'tolakRefund'])->name('tolakRefund');
     //laporan
 
 
@@ -78,6 +83,12 @@ Route::middleware('auth')->group(function () {
         Route::patch('editKaryawan', [KaryawanController::class, 'editKaryawan'])->name('editKaryawan');
         Route::get('deleteKaryawan/{id}', [KaryawanController::class, 'deleteKaryawan'])->name('deleteKaryawan');
         //end karyawan
+
+        //diskon
+        Route::get('diskon', [DiskonController::class, 'index'])->name('diskon');
+        Route::post('addDiskon', [DiskonController::class, 'addDiskon'])->name('addDiskon');
+        Route::patch('editDiskon', [DiskonController::class, 'editDiskon'])->name('editDiskon');
+        //end diskon
     });
 
 

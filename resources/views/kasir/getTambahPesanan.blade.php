@@ -46,6 +46,23 @@
                         </td>
                     </tr>
                 </tbody>
+                <tbody>
+                    <tr>
+                        <td><b>Diskon</b></td>
+                        <td colspan="2">
+                            <select class="form-control" id="pilih_diskon">
+                                <option value="">Pilih Diskon</option>
+                                @foreach ($diskon as $ds)
+                                    <option value="{{ $ds->jumlah }}">{{ $ds->nm_diskon }}
+                                        ({{ $ds->jumlah > 100 ? 'Rp.' . number_format($ds->jumlah, 0) : $ds->jumlah . '%' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td colspan="2"><b id="nominal_diskon"></b> <input type="hidden" name="diskon"
+                                id="jml_diskon" value="0"></td>
+                    </tr>
+                </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="3"><b>Total</b></td>
@@ -59,7 +76,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card mt-2">
     <div class="card-header">
         <h5>Dilayani Oleh</h5>
     </div>

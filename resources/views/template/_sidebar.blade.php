@@ -51,7 +51,7 @@
             </ul>
         </li>
 
-        <li class="menu-item {{ Request::is(['kasir', 'laporanPenjualan']) ? 'active open' : '' }}">
+        <li class="menu-item {{ Request::is(['kasir', 'laporanPenjualan', 'laporanRefund']) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class='menu-icon tf-icons bx bx-store'></i>
                 <div data-i18n="Penjualan">Penjualan</div>
@@ -70,13 +70,19 @@
                     </a>
                 </li>
 
+                <li class="menu-item {{ Request::is('laporanRefund') ? 'active' : '' }}">
+                    <a href="{{ route('laporanRefund') }}" class="menu-link">
+                        <div data-i18n="Laporan Penjualan">Laporan Refund</div>
+                    </a>
+                </li>
+
             </ul>
         </li>
 
 
 
         @if (Auth::user()->role_id == 1)
-            <li class="menu-item {{ Request::is(['user', 'service', 'karyawan']) ? 'active open' : '' }}">
+            <li class="menu-item {{ Request::is(['user', 'service', 'karyawan', 'diskon']) ? 'active open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class='menu-icon tf-icons bx bxs-book-content'></i>
                     <div data-i18n="Data Master">Data Master</div>
@@ -99,6 +105,12 @@
                     <li class="menu-item {{ Request::is('karyawan') ? 'active' : '' }}">
                         <a href="{{ route('karyawan') }}" class="menu-link">
                             <div data-i18n="Karyawan">Karyawan</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ Request::is('diskon') ? 'active' : '' }}">
+                        <a href="{{ route('diskon') }}" class="menu-link">
+                            <div data-i18n="diskon">Diskon</div>
                         </a>
                     </li>
 

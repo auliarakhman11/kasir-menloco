@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Diskon;
 use App\Models\Invoice;
 use App\Models\Karyawan;
 use App\Models\Penjualan;
@@ -44,6 +45,7 @@ class KasirController extends Controller
             'cabang_id' => 1,
             'no_invoice' => $no_invoice,
             'nm_customer' => $request->nm_customer,
+            'no_tlp' => $request->no_tlp,
             'total' => 0,
             'tgl' => date('Y-m-d'),
             'no_antrian' => $no_antrian,
@@ -58,7 +60,7 @@ class KasirController extends Controller
     public function getAntrian()
     {
         return view('kasir.getAntrian', [
-            'antrian' => Invoice::where('selesai', 0)->where('void', 0)->where('tgl',date('Y-m-d'))->orderBy('id', 'ASC')->get(),
+            'antrian' => Invoice::where('selesai', 0)->where('void', 0)->where('tgl', date('Y-m-d'))->orderBy('id', 'ASC')->get(),
         ])->render();
     }
 
@@ -83,6 +85,7 @@ class KasirController extends Controller
         return view('kasir.getTambahPesanan', [
             'service' => Service::where('void', 0)->get(),
             'karyawan' => Karyawan::where('void', 0)->get(),
+            'diskon' => Diskon::where('void', 0)->get(),
         ])->render();
     }
 
@@ -116,11 +119,24 @@ class KasirController extends Controller
             }
 
             foreach ($karyawan_id as $k) {
+
+                $cek_karyawan = Karyawan::where('id', $k)->where('pembagian', '>', 0)->first();
+
+                if ($cek_karyawan) {
+                    if ($cek_karyawan->pembagian > 100) {
+                        $dt_harga = $cek_karyawan->pembagian;
+                    } else {
+                        $dt_harga = $total > 0 ? ($total - $request->diskon) * $cek_karyawan->pembagian / 100 : 0;
+                    }
+                } else {
+                    $dt_harga = 0;
+                }
+
                 PenjualanKaryawan::create([
                     'invoice_id' => $request->id,
                     'cabang_id' => 1,
                     'karyawan_id' => $k,
-                    'harga' => 0,
+                    'harga' =>  $dt_harga,
                     'tgl' => date('Y-m-d'),
                     'void' => 0,
                     'user_id' => Auth::id(),
@@ -129,6 +145,7 @@ class KasirController extends Controller
 
             Invoice::where('id', $request->id)->update([
                 'total' => $total,
+                'diskon' => $request->diskon,
                 'selesai' => 1
             ]);
 
@@ -152,7 +169,7 @@ class KasirController extends Controller
 
     public function refundInvoice(Request $request)
     {
-        Invoice::where('id', $request->id)->update(['void' => 2]);
+        Invoice::where('id', $request->id)->update(['void' => 2, 'ket_refund' => $request->ket_refund, 'user_refund' => Auth::id()]);
         Penjualan::where('invoice_id', $request->id)->update(['void' => 2]);
         PenjualanKaryawan::where('invoice_id', $request->id)->update(['void' => 2]);
 

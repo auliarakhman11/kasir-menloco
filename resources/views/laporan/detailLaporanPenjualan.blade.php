@@ -18,7 +18,7 @@
             @endphp
             @foreach ($laporan as $d)
                 @php
-                    $total += $d->total;
+                    $total += $d->total - $d->diskon;
                 @endphp
                 <tr class="text-center">
                     <td>{{ $i++ }}</td>
@@ -26,7 +26,7 @@
                     <td>{{ date('d/m/Y H:i', strtotime($d->updated_at)) }}</td>
                     <td>{{ $d->no_invoice }}</td>
                     <td>{{ $d->nm_customer }}</td>
-                    <td>{{ number_format($d->total, 0) }}</td>
+                    <td>{{ number_format($d->total - $d->diskon, 0) }}</td>
                     <td>
                         <button type="button" invoice_id="{{ $d->id }}"
                             class="btn btn-sm btn-primary detail_penjualan" data-bs-toggle="modal"

@@ -49,10 +49,16 @@
             @endforeach
         @endif
     </tbody>
+    <tbody>
+        <tr>
+            <td colspan="3"><b>Diskon</b></td>
+            <td>{{ number_format($invoice->diskon, 0) }}</td>
+        </tr>
+    </tbody>
     <tfoot>
         <tr>
             <td colspan="3"><b>Total</b></td>
-            <td><b>{{ number_format($grand_total, 0) }}</b></td>
+            <td><b>{{ number_format($grand_total - $invoice->diskon, 0) }}</b></td>
         </tr>
     </tfoot>
 </table>

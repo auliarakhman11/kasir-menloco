@@ -162,6 +162,17 @@
             <td><strong>Total {{ $qty_produk }} Service</strong></td>
             <td style="text-align: right;"><strong>{{ number_format($total_produk, 0) }}</strong></td>
         </tr>
+        <tr class="huruf">
+            <td><strong>Diskon</strong></td>
+            <td style="text-align: right;">
+                <strong>{{ $invoice->diskon > 0 ? number_format($invoice->diskon, 0) : '-' }}</strong>
+            </td>
+        </tr>
+        <tr class="huruf">
+            <td><strong>Grand Total</strong></td>
+            <td style="text-align: right;"><strong>{{ number_format($total_produk - $invoice->diskon, 0) }}</strong>
+            </td>
+        </tr>
         {{-- @if ($dt_invoice->diskon > 0)
             <tr class="huruf">
                 <td><strong>Diskon</strong></td>
