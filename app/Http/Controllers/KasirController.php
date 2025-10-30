@@ -103,6 +103,7 @@ class KasirController extends Controller
             return false;
         } else {
             $total = 0;
+            $total_pembagian = 0;
 
             for ($count = 0; $count < count($service_id); $count++) {
                 $total += ($harga[$count] * $qty[$count]);
@@ -116,32 +117,38 @@ class KasirController extends Controller
                     'void' => 0,
                     'user_id' => Auth::id(),
                 ]);
-            }
 
-            foreach ($karyawan_id as $k) {
+                $cek_service = Service::where('id', $service_id[$count])->where('pembagian', '>', 0)->first();
 
-                $cek_karyawan = Karyawan::where('id', $k)->where('pembagian', '>', 0)->first();
-
-                if ($cek_karyawan) {
-                    if ($cek_karyawan->pembagian > 100) {
-                        $dt_harga = $cek_karyawan->pembagian;
+                if ($cek_service) {
+                    if ($cek_service->pembagian > 100) {
+                        $dt_harga = $cek_service->pembagian;
                     } else {
-                        $dt_harga = $total > 0 ? ($total - $request->diskon) * $cek_karyawan->pembagian / 100 : 0;
+                        $dt_harga = $total > 0 ? ($harga[$count] * $qty[$count]) * $cek_service->pembagian / 100 : 0;
                     }
                 } else {
                     $dt_harga = 0;
                 }
 
+                $total_pembagian += $dt_harga;
+            }
+
+            $pembagian = $total_pembagian / count($karyawan_id);
+
+            foreach ($karyawan_id as $k) {
+
                 PenjualanKaryawan::create([
                     'invoice_id' => $request->id,
                     'cabang_id' => 1,
                     'karyawan_id' => $k,
-                    'harga' =>  $dt_harga,
+                    'harga' =>  $pembagian,
                     'tgl' => date('Y-m-d'),
                     'void' => 0,
                     'user_id' => Auth::id(),
                 ]);
             }
+
+
 
             Invoice::where('id', $request->id)->update([
                 'total' => $total,
