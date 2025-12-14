@@ -12,10 +12,18 @@
             <th>Dilayani oleh</th>
             <th>:
                 @if ($invoice->penjualanKaryawan)
-                    @foreach ($invoice->penjualanKaryawan as $k)
-                        {{ $k->karyawan->nama }},
+                    @php
+                        $it = 1;
+                    @endphp
+                    @foreach ($invoice->penjualanKaryawan as $kry)
+                        @if ($it > 1)
+                            ,
+                        @endif
+                        {{ $kry->karyawan->nama }}
+                        @php
+                            $it++;
+                        @endphp
                     @endforeach
-
                 @endif
             </th>
         </tr>

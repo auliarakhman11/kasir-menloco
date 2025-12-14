@@ -67,7 +67,7 @@ class KasirController extends Controller
     public function getSelesai()
     {
         return view('kasir.getSelesai', [
-            'antrian' => Invoice::where('selesai', 1)->where('void', 0)->orderBy('id', 'DESC')->where('tgl', date('Y-m-d'))->get(),
+            'antrian' => Invoice::where('selesai', 1)->where('void', 0)->orderBy('id', 'DESC')->where('tgl', date('Y-m-d'))->with(['penjualanKaryawan', 'penjualanKaryawan.karyawan'])->get(),
         ])->render();
     }
 

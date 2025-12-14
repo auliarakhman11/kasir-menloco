@@ -86,7 +86,7 @@
             @foreach ($karyawan as $d)
                 <div class="col-3">
                     <div class="quiz_card_area">
-                        <input class="quiz_checkbox" type="checkbox" id="kry_{{ $d->id }}" name="karyawan_id[]"
+                        <input class="quiz_checkbox" type="radio" id="kry_{{ $d->id }}" name="karyawan_id[]"
                             value="{{ $d->id }}" />
                         <div class="single_quiz_card">
                             <div class="quiz_card_content">
