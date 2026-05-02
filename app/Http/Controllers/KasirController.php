@@ -105,6 +105,13 @@ class KasirController extends Controller
             $total = 0;
             $total_pembagian = 0;
 
+            if (date('H:i:s') > '00::00:00' && '04:00:00' > date('H:i:s')) {
+                $tgl = date('Y-m-d', strtotime('-1 days', strtotime(date('Y-m-d'))));
+            } else {
+                $tgl = date('Y-m-d');
+            }
+
+
             for ($count = 0; $count < count($service_id); $count++) {
                 $total += ($harga[$count] * $qty[$count]);
                 Penjualan::create([
@@ -113,7 +120,7 @@ class KasirController extends Controller
                     'service_id' => $service_id[$count],
                     'harga' => $harga[$count],
                     'qty' => $qty[$count],
-                    'tgl' => date('Y-m-d'),
+                    'tgl' => $tgl,
                     'void' => 0,
                     'user_id' => Auth::id(),
                 ]);
@@ -142,7 +149,7 @@ class KasirController extends Controller
                     'cabang_id' => 1,
                     'karyawan_id' => $k,
                     'harga' =>  $pembagian,
-                    'tgl' => date('Y-m-d'),
+                    'tgl' => $tgl,
                     'void' => 0,
                     'user_id' => Auth::id(),
                 ]);
@@ -153,7 +160,8 @@ class KasirController extends Controller
             Invoice::where('id', $request->id)->update([
                 'total' => $total,
                 'diskon' => $request->diskon,
-                'selesai' => 1
+                'selesai' => 1,
+                'tgl' => $tgl
             ]);
 
             return true;
