@@ -118,7 +118,7 @@ class KasirController extends Controller
 
             for ($count = 0; $count < count($service_id); $count++) {
                 $total += ($harga[$count] * $qty[$count]);
-                Penjualan::create([
+                $dtPenjualan = Penjualan::create([
                     'invoice_id' => $request->id,
                     'cabang_id' => $cabang_id,
                     'service_id' => $service_id[$count],
@@ -129,35 +129,43 @@ class KasirController extends Controller
                     'user_id' => Auth::id(),
                 ]);
 
-                $cek_service = Service::where('id', $service_id[$count])->where('pembagian', '>', 0)->first();
+                $cek_service = Service::where('id', $service_id[$count])->first();
 
                 if ($cek_service) {
                     if ($cek_service->pembagian > 100) {
                         $dt_harga = $cek_service->pembagian;
                     } else {
-                        $dt_harga = $total > 0 ? ($harga[$count] * $qty[$count]) * $cek_service->pembagian / 100 : 0;
+                        if ($cek_service->pembagian > 0) {
+                            $dt_harga = $total > 0 ? ($harga[$count] * $qty[$count]) * $cek_service->pembagian / 100 : 0;
+                        } else {
+                            $dt_harga = 0;
+                        }
                     }
                 } else {
                     $dt_harga = 0;
                 }
 
-                $total_pembagian += $dt_harga;
+                // $total_pembagian += $dt_harga;
+
+                $pembagian = $dt_harga > 0 ? ($dt_harga / count($karyawan_id)) : 0;
+
+                foreach ($karyawan_id as $k) {
+
+                    PenjualanKaryawan::create([
+                        'invoice_id' => $request->id,
+                        'penjualan_id' => $dtPenjualan->id,
+                        'jenis_service' => $cek_service->jenis,
+                        'cabang_id' => $cabang_id,
+                        'karyawan_id' => $k,
+                        'harga' =>  $pembagian,
+                        'tgl' => $tgl,
+                        'void' => 0,
+                        'user_id' => Auth::id(),
+                    ]);
+                }
             }
 
-            $pembagian = $total_pembagian / count($karyawan_id);
 
-            foreach ($karyawan_id as $k) {
-
-                PenjualanKaryawan::create([
-                    'invoice_id' => $request->id,
-                    'cabang_id' => $cabang_id,
-                    'karyawan_id' => $k,
-                    'harga' =>  $pembagian,
-                    'tgl' => $tgl,
-                    'void' => 0,
-                    'user_id' => Auth::id(),
-                ]);
-            }
 
 
 
