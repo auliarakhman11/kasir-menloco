@@ -194,6 +194,13 @@ class KasirController extends Controller
         ])->render();
     }
 
+    public function printNotaWa(Request $request)
+    {
+        return view('kasir.printNotaWa', [
+            'invoice' => Invoice::where('id', $request->inv)->with(['penjualan', 'penjualan.service', 'penjualanKaryawan', 'penjualanKaryawan.karyawan'])->first(),
+        ])->render();
+    }
+
     public function refundInvoice(Request $request)
     {
         Invoice::where('id', $request->id)->update(['void' => 2, 'ket_refund' => $request->ket_refund, 'user_refund' => Auth::id()]);
@@ -201,5 +208,65 @@ class KasirController extends Controller
         PenjualanKaryawan::where('invoice_id', $request->id)->update(['void' => 2]);
 
         return true;
+    }
+
+    public function sendWa(Request $request)
+    {
+        $inv = $request->no_invoice;
+        $invoice = Invoice::where('invoice.no_invoice', $inv)->first();
+        $nm_customer = $invoice->nm_customer;
+        $total_bayar = number_format($invoice->total - $invoice->diskon, 0);
+        $tanggal = date('d/m/Y', strtotime($invoice->tgl));
+        $no_tlp = $invoice->no_tlp;
+        // $nm_cabang = $invoice->cabang ? $invoice->cabang->nama : '';
+        // $no_wa = substr($no_tlp, 1);
+
+
+
+
+        $message = '';
+
+        $link = "https://kasir.menloco.id/printNotaWa?inv=" . $inv;
+        $link_maps = "https://maps.app.goo.gl/ZhDHfLqUnVn8E5rj7";
+        // $message .= "Halo, kak *$nm_customer*! 👋\n\nTerima kasih telah berbelanja di Helwa Perfume $nm_cabang.\nBerikut adalah ringkasan transaksi Anda:\n\n🧾 No. Invoice : $inv\n📅 Tanggal : $tanggal\n💰 Total Bayar : *Rp $total_bayar*\n\n🔗 *Lihat Nota Lengkap Anda:*\n$link\n\nSemoga harinya menyenangkan! ✨";
+        $message .= "Halo kak *$nm_customer*! 👋\n\nMakasih banyak udah potong rambut di Men Loco Cabang Sungai Andai hari ini.\n\nBerikut adalah ringkasan transaksi Anda:\n\n🧾 No. Invoice : $inv\n📅 Tanggal : $tanggal\n💰 Total Bayar : *Rp $total_bayar*\n\nUntuk bukti/struk pembayarannya bisa langsung diakses lewat link ini ya:\n🔗 $link\n\nSuka dengan hasilnya? Bantu kami dengan kasih ulasan bintang 5 di Google Maps ya kak: $link_maps ⭐\n\nDitunggu kedatangan selanjutnya! 💈";
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => $no_tlp,
+                'message' => $message,
+                'typing' => false,
+                'delay' => '2',
+                'countryCode' => '62',
+                'followup' => 0,
+                'inboxid' => 0,
+                'duration' => 1,
+            ),
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: JcDk3WhpsQ7yEYm3gKuS'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        if (curl_errno($curl)) {
+            $error_msg = curl_error($curl);
+        }
+        curl_close($curl);
+
+        if (isset($error_msg)) {
+            return false;
+        }
+
+        return $response;
     }
 }

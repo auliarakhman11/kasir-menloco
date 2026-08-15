@@ -829,6 +829,67 @@
 
             });
 
+            $(document).on('click', '#btn_kirim_wa', function() {
+                const no_invoice = $(this).attr("no_invoice");
+
+                $(this).html(
+                    '<div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div>'
+                );
+                $(this).attr("disabled", true);
+
+                $.ajax({
+                    url: "{{ route('sendWa') }}",
+                    method: 'GET',
+                    dataType: "json",
+                    data: {
+                        no_invoice: no_invoice
+                    },
+                    success: function(data) {
+
+                        if (data == true) {
+                            Swal.fire({
+                                position: "top-end",
+                                icon: "success",
+                                title: "Struk pembelian berhasil dikirim",
+                                showConfirmButton: !1,
+                                timer: 1500
+                            });
+
+                            $('#btn_kirim_wa').html(
+                                'Kirim WA <i class="mdi mdi-whatsapp"></i>');
+                            $('#btn_kirim_wa').removeAttr("disabled");
+                        } else {
+                            $('#btn_kirim_wa').html(
+                                'Kirim WA <i class="mdi mdi-whatsapp"></i>');
+                            $('#btn_kirim_wa').removeAttr("disabled");
+                            Swal.fire({
+                                position: "top-end",
+                                icon: "error",
+                                title: "Error! ada masalah! Cek Nomor Wa!",
+                                showConfirmButton: !1,
+                                timer: 1500
+                            });
+                        }
+
+                    },
+                    error: function(err) { //jika error tampilkan error pada console
+                        $('#btn_kirim_wa').html(
+                            'Kirim WA <i class="mdi mdi-whatsapp"></i>');
+                        $('#btn_kirim_wa').removeAttr("disabled");
+                        Swal.fire({
+                            position: "top-end",
+                            icon: "error",
+                            title: "Error! ada masalah!",
+                            showConfirmButton: !1,
+                            timer: 1500
+                        });
+                        console.log(err);
+
+                    }
+                });
+
+            });
+
         });
     </script>
 @endsection

@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::get('getDeatailPesanan/{invoice_id}', [KasirController::class, 'getDeatailPesanan'])->name('getDeatailPesanan');
     Route::get('printNota', [KasirController::class, 'printNota'])->name('printNota');
     Route::post('refundInvoice', [KasirController::class, 'refundInvoice'])->name('refundInvoice');
+    Route::get('sendWa', [KasirController::class, 'sendWa'])->name('sendWa');
     //end kasir
 
 
@@ -64,6 +65,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('non-active', [AuthController::class, 'nonActive'])->name('nonActive');
 });
+
+Route::get('printNotaWa', [KasirController::class, 'printNotaWa'])->name('printNotaWa');
 
 
 
