@@ -52,6 +52,25 @@
             </ul>
         </li>
 
+        <li class="menu-item {{ Request::is(['pengeluaran']) ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class='menu-icon tf-icons bx bx-calculator'></i>
+                <div data-i18n="Accounting">Accounting</div>
+            </a>
+            <ul class="menu-sub">
+
+
+                <li class="menu-item {{ Request::is('pengeluaran') ? 'active' : '' }}">
+                    <a href="{{ route('pengeluaran') }}" class="menu-link">
+                        <div data-i18n="Laporan Pengeluaran">Laporan Pengeluaran</div>
+                    </a>
+                </li>
+
+
+
+            </ul>
+        </li>
+
 
 
 

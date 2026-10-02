@@ -33,7 +33,7 @@ class KasirController extends Controller
 
         $no_invoice = 'INV' . date('dmy') . strtoupper(Str::random(5));
 
-        $dt_invoice = Invoice::where('tgl', date('Y-m-d'))->orderBy('id', 'DESC')->first();
+        $dt_invoice = Invoice::where('tgl', date('Y-m-d'))->where('cabang_id', Auth::user()->cabang_id)->orderBy('id', 'DESC')->first();
 
         if ($dt_invoice) {
             $no_antrian = $dt_invoice->no_antrian + 1;
@@ -62,14 +62,14 @@ class KasirController extends Controller
     public function getAntrian()
     {
         return view('kasir.getAntrian', [
-            'antrian' => Invoice::where('selesai', 0)->where('void', 0)->where('tgl', date('Y-m-d'))->orderBy('id', 'ASC')->get(),
+            'antrian' => Invoice::where('selesai', 0)->where('cabang_id', Auth::user()->cabang_id)->where('void', 0)->where('tgl', date('Y-m-d'))->orderBy('id', 'ASC')->get(),
         ])->render();
     }
 
     public function getSelesai()
     {
         return view('kasir.getSelesai', [
-            'antrian' => Invoice::where('selesai', 1)->where('void', 0)->orderBy('id', 'DESC')->where('tgl', date('Y-m-d'))->with(['penjualanKaryawan', 'penjualanKaryawan.karyawan'])->get(),
+            'antrian' => Invoice::where('selesai', 1)->where('cabang_id', Auth::user()->cabang_id)->where('void', 0)->orderBy('id', 'DESC')->where('tgl', date('Y-m-d'))->with(['penjualanKaryawan', 'penjualanKaryawan.karyawan'])->get(),
         ])->render();
     }
 
@@ -86,7 +86,7 @@ class KasirController extends Controller
     {
         return view('kasir.getTambahPesanan', [
             'service' => Service::where('void', 0)->get(),
-            'karyawan' => Karyawan::where('void', 0)->get(),
+            'karyawan' => Karyawan::where('void', 0)->where('cabang_id', Auth::user()->cabang_id)->get(),
             'diskon' => Diskon::where('void', 0)->get(),
         ])->render();
     }
@@ -120,6 +120,7 @@ class KasirController extends Controller
                 $total += ($harga[$count] * $qty[$count]);
                 $dtPenjualan = Penjualan::create([
                     'invoice_id' => $request->id,
+                    'pembayaran_id' => $request->pembayaran_id,
                     'cabang_id' => $cabang_id,
                     'service_id' => $service_id[$count],
                     'harga' => $harga[$count],
@@ -172,6 +173,7 @@ class KasirController extends Controller
             Invoice::where('id', $request->id)->update([
                 'total' => $total,
                 'diskon' => $request->diskon,
+                'pembayaran_id' => $request->pembayaran_id,
                 'selesai' => 1,
                 'tgl' => $tgl,
             ]);
@@ -185,6 +187,12 @@ class KasirController extends Controller
         return view('kasir.getDeatailPesanan', [
             'invoice' => Invoice::where('id', $invoice_id)->with(['penjualan', 'penjualan.service', 'penjualanKaryawan', 'penjualanKaryawan.karyawan'])->first(),
         ])->render();
+    }
+
+    public function getInvoiceJson($id)
+    {
+        $invoice = Invoice::where('id', $id)->with(['penjualan', 'penjualan.service', 'penjualanKaryawan', 'penjualanKaryawan.karyawan'])->first();
+        return response()->json($invoice);
     }
 
     public function printNota(Request $request)

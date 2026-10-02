@@ -63,6 +63,18 @@
                                 id="jml_diskon" value="0"></td>
                     </tr>
                 </tbody>
+                <tbody>
+                    <tr>
+                        <td><b>Jenis Pembayaran</b></td>
+                        <td colspan="2">
+                            <select class="form-control" name="pembayaran_id" required>
+                                <option value="">Pilih Pembayaran</option>
+                                <option value="1">Cash</option>
+                                <option value="2">Transfer/QRIS</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="3"><b>Total</b></td>

@@ -2,7 +2,7 @@
 
 
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\JurnalController;
 use App\Http\Controllers\KasirController;
 
 use App\Http\Controllers\UserController;
@@ -49,7 +49,14 @@ Route::middleware('auth')->group(function () {
     Route::get('printNota', [KasirController::class, 'printNota'])->name('printNota');
     Route::post('refundInvoice', [KasirController::class, 'refundInvoice'])->name('refundInvoice');
     Route::get('sendWa', [KasirController::class, 'sendWa'])->name('sendWa');
+    Route::get('getInvoiceJson/{id}', [KasirController::class, 'getInvoiceJson'])->name('getInvoiceJson');
     //end kasir
+
+    //jurnal
+    Route::get('pengeluaran', [JurnalController::class, 'pengeluaran'])->name('pengeluaran');
+    Route::post('addPengeluaran', [JurnalController::class, 'addPengeluaran'])->name('addPengeluaran');
+    Route::patch('editPengeluaran', [JurnalController::class, 'editPengeluaran'])->name('editPengeluaran');
+    Route::get('deletePengeluaran/{id}', [JurnalController::class, 'deletePengeluaran'])->name('deletePengeluaran');
 
 
 

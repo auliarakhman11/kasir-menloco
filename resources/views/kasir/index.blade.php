@@ -4,6 +4,7 @@
 
 
     <!-- Content -->
+    <img id="logo_print" src="{{ asset('img') }}/MEN_LOCO_BLACK.png" style="display:none;" crossorigin="anonymous">
 
     <style>
         *,
@@ -339,8 +340,7 @@
                 <div class="modal-footer">
                     <input type="hidden" id="invoice_id" name="id">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <a href="" id="btn_print" class="btn btn-primary"><i class='bx bx-printer'></i>
-                        Print</a>
+                    <a href="#" id="btn_print" class="btn btn-primary"><i class='bx bx-printer'></i> Print</a>
                 </div>
             </div>
         </div>
@@ -709,8 +709,8 @@
                             getDeatailPesanan(invoice_id);
                             $('#modal_detail_pesanan').modal('show');
 
-                            $('#btn_print').attr('href', "{{ route('printNota') }}?inv=" +
-                                invoice_id);
+                            $('#btn_print').attr('href', "#");
+                            $('#btn_print').attr('onclick', "printBluetooth(" + invoice_id + "); return false;");
                         } else {
                             Swal.fire({
                                 toast: true,
@@ -891,6 +891,258 @@
             });
 
         });
+
+// Function to convert image to ESC/POS raster format
+function getImageData(imgElement, maxWidth = 384) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Scale image to fit printer width (typically 384 dots for 58mm printer)
+    const scale = Math.min(1, maxWidth / imgElement.width);
+    const width = Math.round(imgElement.width * scale);
+    const height = Math.round(imgElement.height * scale);
+    
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Fill white background to avoid transparent issues
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, width, height);
+    
+    ctx.drawImage(imgElement, 0, 0, width, height);
+    
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const pixels = imageData.data;
+    
+    // Width in bytes (8 pixels per byte)
+    const bytesWidth = Math.ceil(width / 8);
+    const rasterData = new Uint8Array(bytesWidth * height);
+    
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const idx = (y * width + x) * 4;
+            const r = pixels[idx];
+            const g = pixels[idx + 1];
+            const b = pixels[idx + 2];
+            // Since we filled white, alpha is mostly 255. Just check brightness
+            const isBlack = ((r + g + b) / 3 < 128);
+            
+            if (isBlack) {
+                const byteIdx = y * bytesWidth + Math.floor(x / 8);
+                const bitPosition = 7 - (x % 8);
+                rasterData[byteIdx] |= (1 << bitPosition);
+            }
+        }
+    }
+    
+    // Construct ESC/POS GS v 0 command
+    // 1D 76 30 00 xL xH yL yH [data]
+    const header = new Uint8Array([
+        0x1D, 0x76, 0x30, 0x00,
+        bytesWidth & 0xFF, (bytesWidth >> 8) & 0xFF,
+        height & 0xFF, (height >> 8) & 0xFF
+    ]);
+    
+    const result = new Uint8Array(header.length + rasterData.length);
+    result.set(header, 0);
+    result.set(rasterData, header.length);
+    
+    return result;
+}
+
+function textToBytes(text) {
+    let arr = new Uint8Array(text.length);
+    for(let i=0; i<text.length; i++) {
+        arr[i] = text.charCodeAt(i);
+    }
+    return arr;
+}
+
+function padRight(text, width) {
+    text = text.toString();
+    if(text.length >= width) return text.substring(0, width);
+    return text + ' '.repeat(width - text.length);
+}
+
+function padLeft(text, width) {
+    text = text.toString();
+    if(text.length >= width) return text.substring(text.length - width);
+    return ' '.repeat(width - text.length) + text;
+}
+
+function formatRow(left, right, width = 32) {
+    left = left.toString();
+    right = right.toString();
+    let padding = width - left.length - right.length;
+    if (padding < 1) padding = 1;
+    return left + ' '.repeat(padding) + right + '\n';
+}
+
+function formatDateCustom(dateString) {
+    let d = new Date(dateString);
+    let day = String(d.getDate()).padStart(2, '0');
+    let month = String(d.getMonth() + 1).padStart(2, '0');
+    let year = d.getFullYear();
+    let hours = String(d.getHours()).padStart(2, '0');
+    let minutes = String(d.getMinutes()).padStart(2, '0');
+    return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
+}
+
+async function printBluetooth(invoice_id, btnElement = null) {
+    let printButton = btnElement || document.getElementById('btn_print');
+    let originalText = printButton ? printButton.innerHTML : '';
+    try {
+        if (printButton) {
+            printButton.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
+            printButton.style.pointerEvents = "none";
+        }
+
+        // Fetch invoice data
+        const response = await fetch('/getInvoiceJson/' + invoice_id);
+        const invoice = await response.json();
+        
+        let printData = [];
+        
+        // Init printer
+        printData.push(new Uint8Array([0x1B, 0x40]));
+        
+        // Center alignment
+        printData.push(new Uint8Array([0x1B, 0x61, 0x01]));
+        
+        // Print logo
+        const imgElement = document.getElementById('logo_print');
+        if (imgElement && imgElement.complete && imgElement.naturalWidth !== 0) {
+            // max width for 58mm printer is ~384 dots. We use 250 for good fit
+            const imgData = getImageData(imgElement, 250); 
+            printData.push(imgData);
+            printData.push(textToBytes('\n')); // new line after image
+        } else {
+            // Fallback if image fails to load
+            printData.push(textToBytes("MEN LOCO\n"));
+        }
+        
+        // Header text
+        printData.push(textToBytes("Gentleman's Barber\n0813-4865-3988\n\n"));
+        
+        // Left alignment
+        printData.push(new Uint8Array([0x1B, 0x61, 0x00]));
+        
+        // Details
+        printData.push(textToBytes("Waktu         : " + formatDateCustom(invoice.updated_at) + "\n"));
+        
+        let karyawanNames = '';
+        if (invoice.penjualan_karyawan && invoice.penjualan_karyawan.length > 0) {
+            karyawanNames = invoice.penjualan_karyawan.map(pk => pk.karyawan ? pk.karyawan.nama : '').filter(n => n).join(", ");
+        }
+        
+        printData.push(textToBytes("Dilayani oleh : " + (karyawanNames || '-') + "\n"));
+        printData.push(textToBytes("Costumer      : " + (invoice.nm_customer || '-') + "\n"));
+        
+        printData.push(textToBytes("--------------------------------\n"));
+        
+        let totalProduk = 0;
+        let qtyProduk = 0;
+        
+        if (invoice.penjualan && invoice.penjualan.length > 0) {
+            invoice.penjualan.forEach((item) => {
+                let sName = item.service ? item.service.nm_service : '';
+                let leftStr = item.qty + "  " + sName;
+                let rightStr = (item.harga * item.qty).toLocaleString('en-US');
+                printData.push(textToBytes(formatRow(leftStr, rightStr, 32)));
+                totalProduk += item.harga * item.qty;
+                qtyProduk += item.qty;
+            });
+        }
+        
+        printData.push(textToBytes("--------------------------------\n"));
+        
+        printData.push(textToBytes(formatRow("Total " + qtyProduk + " Service", totalProduk.toLocaleString('en-US'), 32)));
+        let diskonStr = invoice.diskon > 0 ? invoice.diskon.toLocaleString('en-US') : '-';
+        printData.push(textToBytes(formatRow("Diskon", diskonStr, 32)));
+        let grandTotal = totalProduk - invoice.diskon;
+        printData.push(textToBytes(formatRow("Grand Total", grandTotal.toLocaleString('en-US'), 32)));
+        
+        printData.push(textToBytes("--------------------------------\n\n"));
+        
+        // Center alignment
+        printData.push(new Uint8Array([0x1B, 0x61, 0x01]));
+        printData.push(textToBytes("Terimakasih\n\nInstagram : menloco.id\n\nTerbayar\n"));
+        printData.push(textToBytes("<------ " + formatDateCustom(new Date()) + " ------>\n\n\n\n"));
+        
+        // Concatenate all ArrayBuffers
+        let totalLength = printData.reduce((acc, val) => acc + val.length, 0);
+        let finalData = new Uint8Array(totalLength);
+        let offset = 0;
+        for(let arr of printData) {
+            finalData.set(arr, offset);
+            offset += arr.length;
+        }
+
+        // Web Bluetooth Connection
+        const device = await navigator.bluetooth.requestDevice({
+            filters: [
+                { services: ['000018f0-0000-1000-8000-00805f9b34fb'] }
+            ],
+            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', 'e7810a71-73ae-499d-8c15-faa9aef0c3f2']
+        });
+        
+        const server = await device.gatt.connect();
+        
+        // Try getting common printer services
+        let service;
+        try {
+            service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        } catch(e) {
+            service = await server.getPrimaryService('e7810a71-73ae-499d-8c15-faa9aef0c3f2');
+        }
+        
+        let characteristic;
+        try {
+            characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+        } catch(e) {
+            try {
+                characteristic = await service.getCharacteristic('bef8d6c9-9c21-4c9e-b632-bd58c1009f9f');
+            } catch(ex) {
+                // Get the first characteristic if standard ones aren't found
+                const characteristics = await service.getCharacteristics();
+                characteristic = characteristics[0];
+            }
+        }
+        
+        // Print data in chunks (some printers have small MTU)
+        const CHUNK_SIZE = 512;
+        for (let i = 0; i < finalData.length; i += CHUNK_SIZE) {
+            const chunk = finalData.slice(i, i + CHUNK_SIZE);
+            await characteristic.writeValue(chunk);
+        }
+        
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            icon: 'success',
+            title: 'Berhasil mencetak!'
+        });
+
+        if (printButton) {
+            printButton.innerHTML = originalText;
+            printButton.style.pointerEvents = "auto";
+        }
+        
+    } catch (e) {
+        console.error("Print error: ", e);
+        // Only alert if it's not a user cancellation
+        if (e.name !== 'NotFoundError' && e.name !== 'SecurityError') {
+             alert('Gagal mencetak: ' + e.message);
+        }
+        if (printButton) {
+            printButton.innerHTML = originalText || "<i class='bx bx-printer'></i>";
+            printButton.style.pointerEvents = "auto";
+        }
+    }
+}
+
     </script>
 @endsection
 @endsection

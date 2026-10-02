@@ -9,7 +9,7 @@ class Penjualan extends Model
 {
     use HasFactory;
     protected $table = 'penjualan';
-    protected $fillable = ['invoice_id', 'cabang_id', 'service_id', 'harga', 'qty', 'tgl', 'void', 'user_id'];
+    protected $fillable = ['invoice_id', 'cabang_id', 'service_id', 'pembayaran_id', 'harga', 'qty', 'tgl', 'void', 'user_id'];
 
     public function service()
     {

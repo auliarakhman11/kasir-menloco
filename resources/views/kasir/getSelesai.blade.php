@@ -38,8 +38,9 @@
                     <td>{{ $d->no_tlp }}</td>
                     <td>{{ number_format($d->total - $d->diskon, 0) }}</td>
                     <td>
-                        <a href="{{ route('printNota', ['inv' => $d->id]) }}" class="btn btn-sm btn-primary"><i
-                                class='bx bx-printer'></i></a>
+                        <button type="button" onclick="printBluetooth({{ $d->id }}, this)" class="btn btn-sm btn-primary" title="Print Nota">
+                            <i class='bx bx-printer'></i>
+                        </button>
                         <button invoice_id="{{ $d->id }}" class="btn btn-sm btn-primary refund_pesanan"
                             data-bs-toggle="modal" data-bs-target="#modal_refund"><i class='bx bx-refresh'></i></button>
                     </td>

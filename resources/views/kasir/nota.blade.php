@@ -42,7 +42,7 @@
     </tr> --}}
         <tr>
             <td width="40%" class="huruf">Waktu</td>
-            <td style="text-align: left; " class="huruf">: {{ date('d M Y H:i', strtotime($invoice->updated_at)) }}
+            <td style="text-align: left; " class="huruf">: {{ date('d/m/Y H:i', strtotime($invoice->updated_at)) }}
             </td>
         </tr>
         <!-- <tr>
@@ -205,7 +205,7 @@
     <p class="huruf" align="center">Terbayar</p>
 
     @php
-        $zona_waktu = date('d M Y h:i');
+        $zona_waktu = date('d/m/Y H:i');
 
     @endphp
     <p class="huruf" align="center" style="margin-top: -10px;"><-------- <?= $zona_waktu ?> --------></p>
